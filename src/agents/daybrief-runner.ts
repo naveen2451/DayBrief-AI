@@ -118,28 +118,51 @@ Use ALL FOUR integrations:
    in naveen2451/DayBrief-AI.
    Include PR numbers, titles and important action items.
 
-Format the final answer using these headings:
-Weather
-Outlook Emails
-Calendar
-GitHub
-Action Items
+   Format the final answer using exactly these headings:
 
-Use short, readable lines.
-Do not output raw JSON.
-Do not invent missing information.
+   Weather
+   Outlook Emails
+   Calendar
+   GitHub
+   Action Items
+   
+   Formatting rules:
+   - Keep the entire briefing under 250 words.
+   - Weather: maximum 2 lines, including temperature and rain.
+   - Emails: maximum 5 short lines; group repeated topics.
+   - Calendar: show today's appointments with UK local times.
+   - GitHub: show PR number, title and status.
+   - Action Items: maximum 3 genuinely important actions.
+   - Prioritise security alerts, upcoming appointments and blocked work.
+   - Distinguish confirmed facts from uncertain information.
+   - Do not invent events, PR statuses or action items.
+   - Do not suggest modifying emails, calendars or GitHub.
+   - Do not offer actions that our integrations cannot perform.
+   - Do not ask follow-up questions.
+   - Do not include a separate Sources section.
+   - Keep source links inline only when useful.
+   - Do not output raw JSON.
 `;
 
   let emailCalled = false;
   let calendarCalled = false;
   const outputTypes: string[] = [];
 
+  const toolResultCache = new Map<string, string>();
+
   try {
     let response = await openai.responses.create({
       conversation: conversation.id,
       input: prompt,
       max_output_tokens: 7000,
+      tool_choice: "required",
+      parallel_tool_calls: false,
     });
+
+    console.log("\nFIRST RESPONSE TOKEN USAGE");
+    console.log("Input:", response.usage?.input_tokens ?? "N/A");
+    console.log("Output:", response.usage?.output_tokens ?? "N/A");
+    console.log("Total:", response.usage?.total_tokens ?? "N/A");
 
     // Allow multiple rounds because the model may request
     // Outlook functions in separate responses.
@@ -155,49 +178,56 @@ Do not invent missing information.
       const outputs: ToolOutput[] = [];
 
       for (const call of calls) {
-        switch (call.name) {
-          case "get_outlook_emails": {
-            const limit = parseEmailLimit(call.arguments);
-            const emails = await getOutlookEmails(limit);
+        const cacheKey = `${call.name}:${call.arguments}`;
 
-            emailCalled = true;
-            console.log(`Outlook: retrieved ${emails.length} emails`);
+        let output = toolResultCache.get(cacheKey);
 
-            outputs.push({
-              type: "function_call_output",
-              call_id: call.call_id,
-              output: JSON.stringify({ emails }),
-            });
+        if (output === undefined) {
+          switch (call.name) {
+            case "get_outlook_emails": {
+              const limit = parseEmailLimit(call.arguments);
+              const emails = await getOutlookEmails(limit);
 
-            break;
+              emailCalled = true;
+              console.log(`Outlook: retrieved ${emails.length} emails`);
+
+              output = JSON.stringify({ emails });
+              break;
+            }
+
+            case "get_outlook_calendar_events": {
+              const { startDate, endDate } = parseCalendarDates(call.arguments);
+
+              const events = await getOutlookCalendarEvents(startDate, endDate);
+
+              calendarCalled = true;
+              console.log(`Calendar: retrieved ${events.length} events`);
+
+              output = JSON.stringify({ events });
+              break;
+            }
+
+            default:
+              throw new Error(`Unexpected function: ${call.name}`);
           }
 
-          case "get_outlook_calendar_events": {
-            const { startDate, endDate } = parseCalendarDates(call.arguments);
-
-            const events = await getOutlookCalendarEvents(startDate, endDate);
-
-            calendarCalled = true;
-            console.log(`Calendar: retrieved ${events.length} events`);
-
-            outputs.push({
-              type: "function_call_output",
-              call_id: call.call_id,
-              output: JSON.stringify({ events }),
-            });
-
-            break;
-          }
-
-          default:
-            throw new Error(`Unexpected function: ${call.name}`);
+          toolResultCache.set(cacheKey, output);
+        } else {
+          console.log(`Using cached result: ${call.name}`);
         }
+
+        outputs.push({
+          type: "function_call_output",
+          call_id: call.call_id,
+          output,
+        });
       }
 
       response = await openai.responses.create({
         conversation: conversation.id,
         input: outputs,
-        max_output_tokens: 7000,
+        max_output_tokens: 3000,
+        parallel_tool_calls: false,
       });
     }
 

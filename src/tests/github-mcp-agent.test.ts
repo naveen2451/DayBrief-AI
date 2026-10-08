@@ -27,7 +27,10 @@ async function main() {
         "If none exist, say so.",
       max_output_tokens: 7000,
     });
-
+    console.log("\nTOKEN USAGE");
+    console.log("Input tokens:", response.usage?.input_tokens ?? "N/A");
+    console.log("Output tokens:", response.usage?.output_tokens ?? "N/A");
+    console.log("Total tokens:", response.usage?.total_tokens ?? "N/A");
     console.log("\n📋 GitHub Pull Request Summary");
     console.log("────────────────────────────");
 
@@ -40,6 +43,15 @@ async function main() {
     }
 
     for (const item of response.output) {
+      if (item.type === "mcp_list_tools") {
+        console.log("\nAVAILABLE GITHUB MCP TOOLS:");
+
+        for (const tool of item.tools) {
+          console.log(`- ${tool.name}`);
+        }
+
+        console.log("Total tools:", item.tools.length);
+      }
       console.log("Output type:", item.type);
 
       if (item.type === "mcp_approval_request") {
