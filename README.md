@@ -307,3 +307,5 @@ Monitoring      Application Insights / Azure Monitor
 > The security architecture uses OAuth for personal accounts, Managed Identity and RBAC for Azure resources, and Key Vault for secrets. Credentials are never exposed to the LLM.
 >
 > The project also includes production concerns such as scheduling, tracing, token and cost monitoring, least-privilege access and a design that can later support multiple users and controlled agent actions.
+
+Change  to test the PR
