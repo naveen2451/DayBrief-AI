@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:connection": "tsx src/tests/foundry-connectivity.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "agent:create": "tsx src/agents/daybrief-agent.ts",
+    "test:agent": "tsx src/tests/daybrief-agent.test.ts",
+    "test:weather": "tsx src/tests/weather.test.ts"
   },
   "repository": {
     "type": "git",
