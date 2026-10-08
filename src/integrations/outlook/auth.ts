@@ -11,7 +11,7 @@ import path from "node:path";
 import os from "node:os";
 import fs from "node:fs";
 
-const scopes = ["User.Read", "Mail.Read"];
+const scopes = ["User.Read", "Mail.Read", "Calendars.Read"];
 
 let msalClient: PublicClientApplication | undefined;
 

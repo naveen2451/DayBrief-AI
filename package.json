@@ -13,7 +13,10 @@
     "test:outlook-auth": "tsx src/integrations/outlook/auth.ts",
     "test:outlook-emails": "tsx src/tests/outlook-emails.test.ts",
     "test:outlook-service": "tsx src/tests/outlook-service.test.ts",
-    "test:outlook-agent": "tsx src/tests/outlook-agent.test.ts"
+    "test:outlook-agent": "tsx src/tests/outlook-agent.test.ts",
+    "test:outlook-calendar": "tsx src/tests/outlook-calendar.test.ts",
+    "test:outlook-calendar-agent": "tsx src/tests/outlook-calendar-agent.test.ts",
+    "test:github-mcp-server-agent": "tsx src/tests/github-mcp-agent.test.ts"
   },
   "repository": {
     "type": "git",
