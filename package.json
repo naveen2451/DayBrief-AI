@@ -1,0 +1,32 @@
+{
+  "name": "daybrief-ai",
+  "version": "1.0.0",
+  "description": "DayBrief AI is a **code-first personal AI assistant** built using **TypeScript, Microsoft Foundry and Azure OpenAI**.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "test:connection": "tsx src/tests/foundry-connectivity.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/naveen2451/DayBrief-AI.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/naveen2451/DayBrief-AI/issues"
+  },
+  "homepage": "https://github.com/naveen2451/DayBrief-AI#readme",
+  "dependencies": {
+    "@azure/ai-projects": "^2.8.0",
+    "@azure/identity": "^4.13.3",
+    "dotenv": "^18.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
